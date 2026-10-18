@@ -1,6 +1,6 @@
 -module(licensebox).
 -behaviour(gen_server).
--export([start_link/2,start_link/4,close/1,lease/1,require_module/2,status/1,sign_in/1,sign_in/2,logout/1,modules/1,requests/1,request_access/3,access_link/1,record/4,derive_binding/3,native_binding/1,verify_lease/4]).
+-export([start_link/2,start_link/4,close/1,lease/1,heartbeat/2,require_module/2,status/1,sign_in/1,sign_in/2,logout/1,modules/1,requests/1,request_access/3,access_link/1,record/4,derive_binding/3,native_binding/1,verify_lease/4]).
 -export([init/1,handle_call/3,handle_cast/2,handle_info/2,terminate/2,code_change/3]).
 start_link(Product,Keys)->start_link(Product,Keys,#{},#{}).
 %% Hooks are typed trusted funs. Identity is never read from the options map.
@@ -21,6 +21,7 @@ call(Pid,Op,Args)->gen_server:call(Pid,{operation,Op,Args},infinity).
 close(Pid) when Pid=:=self()->{error,{<<"invalid_argument">>,<<"callbacks must not close client">>}};
 close(Pid)->gen_server:call(Pid,close,infinity).
 lease(P)->call(P,<<"lease">>,#{}).
+heartbeat(P,M)->call(P,<<"heartbeat">>,#{<<"module">>=>arg(M)}).
 require_module(P,M)->call(P,<<"require">>,#{<<"module">>=>arg(M)}).
 status(P)->call(P,<<"status">>,#{}).
 sign_in(P)->sign_in(P,0).

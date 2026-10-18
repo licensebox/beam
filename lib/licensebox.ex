@@ -9,6 +9,7 @@ defmodule Licensebox do
   end
   def close(client), do: :licensebox.close(client)
   def lease(client), do: :licensebox.lease(client)
+  def heartbeat(client, name), do: :licensebox.heartbeat(client, name)
   def require_module(client, name), do: :licensebox.require_module(client, name)
   def status(client), do: :licensebox.status(client)
   def sign_in(client, timeout \\ 0), do: :licensebox.sign_in(client, timeout)

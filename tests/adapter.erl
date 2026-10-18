@@ -16,6 +16,9 @@ run(R)->
  {ok,C}=licensebox:start_link(maps:get(<<"product">>,R),maps:get(<<"keys">>,R),Opts,Hooks),
  try case maps:get(<<"op">>,R) of
  <<"lease">>->licensebox:lease(C);<<"status">>->licensebox:status(C);<<"sign_in">>->licensebox:sign_in(C,3);
+ <<"heartbeat">>->licensebox:heartbeat(C,maps:get(<<"module">>,R,<<"core">>));
+ <<"heartbeat-repeat">>->case licensebox:heartbeat(C,maps:get(<<"module">>,R,<<"core">>)) of {ok,_}->licensebox:heartbeat(C,maps:get(<<"module">>,R,<<"core">>));E->E end;
+ <<"heartbeat-after-require">>->case licensebox:require_module(C,maps:get(<<"module">>,R,<<"core">>)) of {ok,_}->licensebox:heartbeat(C,maps:get(<<"module">>,R,<<"core">>));E->E end;
  <<"require">>->licensebox:require_module(C,maps:get(<<"module">>,R,<<"core">>));
  <<"repeat">>->case licensebox:require_module(C,<<"core">>) of {ok,_}->licensebox:require_module(C,<<"core">>);E->E end;
  <<"logout">>->licensebox:logout(C);<<"modules">>->licensebox:modules(C);<<"requests">>->licensebox:requests(C);

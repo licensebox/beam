@@ -17,3 +17,5 @@ protocol_dir=${LICENSEBOX_PROTOCOL_DIR:-../protocol}
 test -f "$protocol_dir/conformance/run.py"
 python3 "$protocol_dir/conformance/run.py" --adapter "$PWD/ci/adapter-elixir.sh"
 python3 "$protocol_dir/conformance/tls_transport.py" --adapter "$PWD/ci/adapter-elixir.sh"
+
+python3 "$protocol_dir/conformance/heartbeat.py" --adapter "$PWD/ci/adapter-elixir.sh"
