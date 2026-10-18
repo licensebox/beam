@@ -10,7 +10,7 @@ end
 defmodule Licensebox.MixProject do
   use Mix.Project
   def project do
-    [app: :licensebox, version: "0.1.0", elixir: ">= 1.14.0", compilers: [:licensebox_native] ++ Mix.compilers(),
+    [app: :licensebox, version: "0.2.0", elixir: ">= 1.14.0", compilers: [:licensebox_native] ++ Mix.compilers(),
      description: "Native Licensebox application licensing SDK", source_url: "https://github.com/licensebox/beam",
      package: [licenses: ["MIT"], links: %{"Homepage" => "https://meshing.engineer"}, files: ["lib", "src", "c_src", "Makefile", "mix.exs", "LICENSE", "README.md"]]]
   end
