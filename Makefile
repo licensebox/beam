@@ -9,7 +9,7 @@ ebin/licensebox.app: src/*.erl src/licensebox.app.src
 	erlc -Werror -o ebin src/*.erl
 	cp src/licensebox.app.src $@
 package: all
-	mkdir -p build/package/licensebox-0.2.0
-	cp -r c_src src lib priv ebin Makefile mix.exs LICENSE README.md build/package/licensebox-0.2.0/
-	tar -czf build/licensebox-beam-0.2.0.tar.gz -C build/package licensebox-0.2.0
+	mkdir -p build/package/licensebox-0.3.0
+	cp -r c_src src lib priv ebin Makefile mix.exs LICENSE README.md build/package/licensebox-0.3.0/
+	tar -czf build/licensebox-beam-0.3.0.tar.gz -C build/package licensebox-0.3.0
 .PHONY: all package

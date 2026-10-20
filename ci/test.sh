@@ -9,8 +9,8 @@ mix compile --warnings-as-errors
 mix run tests/binding_test.exs
 make package
 mkdir -p build/consumer
-tar -xzf build/licensebox-beam-0.2.0.tar.gz -C build/consumer
-(cd build/consumer/licensebox-0.2.0 && make && erl -noshell -pa ebin -eval '{ok,_}=licensebox:native_binding(<<"demo">>),halt().' && mix compile --warnings-as-errors && mix run -e '{:ok, _} = Licensebox.native_binding("demo")')
+tar -xzf build/licensebox-beam-0.3.0.tar.gz -C build/consumer
+(cd build/consumer/licensebox-0.3.0 && make && erl -noshell -pa ebin -eval '{ok,_}=licensebox:native_binding(<<"demo">>),halt().' && mix compile --warnings-as-errors && mix run -e '{:ok, _} = Licensebox.native_binding("demo")')
 # The reusable workflow exercises Erlang through adapter.sh. Exercise the full
 # independently written Elixir adapter here as part of every package build.
 protocol_dir=${LICENSEBOX_PROTOCOL_DIR:-../protocol}

@@ -1,1 +1,1 @@
-{application,licensebox,[{description,"Native Licensebox application SDK"},{vsn,"0.2.0"},{modules,[licensebox,licensebox_native]},{registered,[]},{applications,[kernel,stdlib,jiffy]}]}.
+{application,licensebox,[{description,"Native Licensebox application SDK"},{vsn,"0.3.0"},{modules,[licensebox,licensebox_native]},{registered,[]},{applications,[kernel,stdlib,jiffy]}]}.
