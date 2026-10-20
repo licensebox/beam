@@ -18,7 +18,9 @@ static ERL_NIF_TERM atom(ErlNifEnv*e,const char*s){return enif_make_atom(e,s);}
 static ERL_NIF_TERM binary(ErlNifEnv*e,const char*s){ERL_NIF_TERM t;unsigned char*p=enif_make_new_binary(e,strlen(s),&t);memcpy(p,s,strlen(s));return t;}
 static ERL_NIF_TERM error(ErlNifEnv*e,const char*code,const char*message){return enif_make_tuple2(e,atom(e,"error"),enif_make_tuple2(e,binary(e,code),binary(e,message)));}
 static ERL_NIF_TERM result_error(ErlNifEnv*e,int r,lb_client*c){const char*code=lb_result_code(r),*detail=code;if(c&&strcmp(code,"invalid_argument")){const char*saved=lb_error_code(c);if(strcmp(saved,"ok"))code=saved;detail=lb_error_message(c);}return error(e,code,detail);}
-static char*string(ErlNifEnv*e,ERL_NIF_TERM t){ErlNifBinary b;if(!enif_inspect_binary(e,t,&b)||memchr(b.data,0,b.size))return NULL;char*s=enif_alloc(b.size+1);if(!s)return NULL;memcpy(s,b.data,b.size);s[b.size]=0;return s;}
+/* jiffy returns iodata, not a binary, once a document is large, as one carrying
+   a 2.7 KB hybrid key is; an iolist is flattened here. */
+static char*string(ErlNifEnv*e,ERL_NIF_TERM t){ErlNifBinary b;if(!enif_inspect_iolist_as_binary(e,t,&b)||memchr(b.data,0,b.size))return NULL;char*s=enif_alloc(b.size+1);if(!s)return NULL;memcpy(s,b.data,b.size);s[b.size]=0;return s;}
 static int hook(Host*h,const char*kind,const char*u,const char*c){
  enif_mutex_lock(h->mutex);if(h->dead||h->failed){h->failed=1;enif_mutex_unlock(h->mutex);return 0;}
  ErlNifEnv*e=enif_alloc_env();h->waiting=1;h->seq++;enif_clear_env(h->reply_env);
