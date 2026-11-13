@@ -47,3 +47,18 @@ runtime/event loop and stop protected work at the last verified lease's `expires
 time even if a renewal hangs. Use the signed `heartbeat.interval_seconds` when
 present (otherwise a 300-second interval is a reasonable default); a failed
 contact never extends the signed deadline. This SDK starts no heartbeat threads.
+
+## Seats per module, floating copies and service accounts
+
+Calls: `licensebox:enrol/2`, `checkout/2`, `checkin/2` (Elixir `Licensebox.enrol/2`, `checkout/2`, `checkin/2`), and the `enrol_token` option.
+
+A module can have seats of its own: on a machine without its seat the lease
+names it in `elsewhere`, requiring it fails with `module_denied`, and an
+explicit sign-in moves the seat here. A customer can hold a pool of floating
+copies of a module, named in the lease's `floating`: requiring such a module
+checks a copy out (`no_free_copy` when every copy is in use), heartbeats keep
+it, and checking in returns it. A crashed application's copy is freed when
+the heartbeat grace passes. A server or build runner licensed as a service
+account sets the one-time token an admin issued as `LICENSEBOX_ENROL_TOKEN`
+or the `enrol_token` option: its first lease enrols the machine without a
+browser (`invalid_token` when the token is used or expired).

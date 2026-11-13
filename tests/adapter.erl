@@ -11,7 +11,8 @@ run(#{<<"op">>:=<<"native">>}=R)->licensebox:native_binding(maps:get(<<"product"
 run(#{<<"op">>:=<<"verify">>}=R)->licensebox:verify_lease(maps:get(<<"token">>,R),maps:get(<<"product">>,R),maps:get(<<"keys">>,R),maps:get(<<"now">>,R));
 run(R)->
  BaseOpts=#{version=><<"conformance">>,server=>maps:get(<<"server">>,R),directory=>maps:get(<<"directory">>,R)},
- Opts=case maps:find(<<"ca_bundle">>,R) of {ok,CA}->BaseOpts#{ca_bundle=>CA};error->BaseOpts end,
+ Opts0=case maps:find(<<"ca_bundle">>,R) of {ok,CA}->BaseOpts#{ca_bundle=>CA};error->BaseOpts end,
+ Opts=case maps:find(<<"enrol_token">>,R) of {ok,T}->Opts0#{enrol_token=>T};error->Opts0 end,
  Hooks=#{clock=>fun()->maps:get(<<"now">>,R) end,machine_binding=>fun()->maps:get(<<"binding">>,R) end,on_sign_in=>fun(_,_)->ok end},
  {ok,C}=licensebox:start_link(maps:get(<<"product">>,R),maps:get(<<"keys">>,R),Opts,Hooks),
  try case maps:get(<<"op">>,R) of
@@ -24,5 +25,8 @@ run(R)->
  <<"logout">>->licensebox:logout(C);<<"modules">>->licensebox:modules(C);<<"requests">>->licensebox:requests(C);
  <<"request">>->licensebox:request_access(C,[<<"export">>],unicode:characters_to_binary("café – test"));
  <<"access-link">>->licensebox:access_link(C);
+ <<"enrol">>->licensebox:enrol(C,maps:get(<<"token">>,R));
+ <<"checkout">>->licensebox:checkout(C,maps:get(<<"module">>,R));
+ <<"checkin">>->licensebox:checkin(C,[maps:get(<<"module">>,R)]);
  <<"record">>->case licensebox:record(C,<<"export">>,true,0.125) of {ok,_}->licensebox:record(C,<<"export">>,false,0.025);E->E end
  end after licensebox:close(C) end.

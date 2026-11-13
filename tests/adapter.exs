@@ -7,6 +7,7 @@ run = fn ->
     op ->
       opts = [version: "conformance", server: r["server"], directory: r["directory"]]
       opts = if r["ca_bundle"], do: Keyword.put(opts, :ca_bundle, r["ca_bundle"]), else: opts
+      opts = if r["enrol_token"], do: Keyword.put(opts, :enrol_token, r["enrol_token"]), else: opts
       {:ok, c} = Licensebox.start_link(r["product"], r["keys"], opts, [clock: fn -> r["now"] end, machine_binding: fn -> r["binding"] end, on_sign_in: fn _, _ -> :ok end])
       try do
         case op do
@@ -23,6 +24,9 @@ run = fn ->
           "requests" -> Licensebox.requests(c)
           "request" -> Licensebox.request_access(c,["export"],"café – test")
           "access-link" -> Licensebox.access_link(c)
+          "enrol" -> Licensebox.enrol(c, r["token"])
+          "checkout" -> Licensebox.checkout(c, r["module"])
+          "checkin" -> Licensebox.checkin(c, [r["module"]])
           "record" -> with {:ok, _} <- Licensebox.record(c,"export",true,0.125), do: Licensebox.record(c,"export",false,0.025)
         end
       after

@@ -1,6 +1,6 @@
 -module(licensebox).
 -behaviour(gen_server).
--export([start_link/2,start_link/4,close/1,lease/1,heartbeat/2,require_module/2,status/1,sign_in/1,sign_in/2,logout/1,modules/1,requests/1,request_access/3,access_link/1,record/4,derive_binding/3,native_binding/1,verify_lease/4]).
+-export([start_link/2,start_link/4,close/1,lease/1,heartbeat/2,require_module/2,status/1,sign_in/1,sign_in/2,logout/1,modules/1,requests/1,request_access/3,access_link/1,enrol/2,checkout/2,checkin/2,record/4,derive_binding/3,native_binding/1,verify_lease/4]).
 -export([init/1,handle_call/3,handle_cast/2,handle_info/2,terminate/2,code_change/3]).
 start_link(Product,Keys)->start_link(Product,Keys,#{},#{}).
 %% Hooks are typed trusted funs. Identity is never read from the options map.
@@ -12,7 +12,7 @@ init({Product,Keys,Options,Hooks})->
  try
   maps:foreach(fun(Name,F)->Arity=case Name of on_sign_in->2;clock->0;machine_binding->0;cancelled->0 end,true=is_function(F,Arity) end,Hooks),
   Base=#{<<"product">>=>arg(Product),<<"keys">>=>keys(Keys),<<"version">>=>arg(maps:get(version,Options,<<>>))},
-  Opts=lists:foldl(fun(K,M)->case maps:find(K,Options) of {ok,V}->M#{atom_to_binary(K,utf8)=>arg(V)};error->M end end,Base,[server,directory,ca_bundle]),
+  Opts=lists:foldl(fun(K,M)->case maps:find(K,Options) of {ok,V}->M#{atom_to_binary(K,utf8)=>arg(V)};error->M end end,Base,[server,directory,ca_bundle,enrol_token]),
   Mask=lists:foldl(fun({K,N},A)->case maps:is_key(K,Hooks) of true->A bor N;false->A end end,0,[{on_sign_in,1},{clock,2},{machine_binding,4},{cancelled,8}]),
   case licensebox_native:create(jiffy:encode(Opts),Mask) of {ok,Resource}->{ok,#{resource=>Resource,hooks=>Hooks,pending=>none,queue=>queue:new()}};{error,E}->{stop,E} end
  catch _:Reason->{stop,{invalid_argument,Reason}} end.
@@ -31,6 +31,11 @@ modules(P)->call(P,<<"modules">>,#{}).
 requests(P)->call(P,<<"requests">>,#{}).
 request_access(P,Modules,Note)->call(P,<<"request">>,#{<<"modules">>=>[arg(M)||M<-Modules],<<"note">>=>arg(Note)}).
 access_link(P)->call(P,<<"access-link">>,#{}).
+%% Service accounts and floating copies: require_module checks a floating module
+%% out by itself; the enrol_token option (else LICENSEBOX_ENROL_TOKEN) enrols.
+enrol(P,Token)->call(P,<<"enrol">>,#{<<"token">>=>arg(Token)}).
+checkout(P,M)->call(P,<<"checkout">>,#{<<"module">>=>arg(M)}).
+checkin(P,Modules)->call(P,<<"checkin">>,#{<<"modules">>=>[arg(M)||M<-Modules]}).
 record(P,Command,Success,Elapsed) when is_boolean(Success),is_number(Elapsed),Elapsed>=0->call(P,<<"record">>,#{<<"command">>=>arg(Command),<<"success">>=>Success,<<"elapsed">>=>Elapsed}).
 trim(B) when byte_size(B)>0->case binary:last(B) of 0->trim(binary:part(B,0,byte_size(B)-1));_->B end;
 trim(B)->B.
